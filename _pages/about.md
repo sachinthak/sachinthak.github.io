@@ -13,4 +13,4 @@ The main purpose of this blog is to document and share small Data Science experi
 
 
 
-The theme for this website is based on [reverie theme](https://github.com/amitmerchant1990/reverie).
+The theme for this website is based on [reverie](https://github.com/amitmerchant1990/reverie).
