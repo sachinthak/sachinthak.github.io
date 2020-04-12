@@ -611,7 +611,7 @@ Modules - reusable parts of our design
 
 #gh-latest{
     font-size: 16px;
-    text-align: center;		
+    text-align: center;
 }
 
 .text-link {
@@ -700,7 +700,8 @@ Modules - reusable parts of our design
   font-size: 14.5px;
   padding: 2px 13px;
   border: none;
-  background-color: #4CAF50;
+  #background-color: #4CAF50;
+  background-color: #56B4E9;
   border-radius: 50px;
   color: #fff;
 }
@@ -714,7 +715,7 @@ Modules - reusable parts of our design
   display: inline-block;
 }
 
-.pagination a {    
+.pagination a {
   &:hover {
       background-color: #f1f1f1;
       color: #333;
@@ -1136,6 +1137,9 @@ Modules - reusable parts of our design
   }
 }
 
+.text-justify {
+  text-align: justify;
+}
 
 // Settled on moving the import of syntax highlighting to the bottom of the CSS
 // ... Otherwise it really bloats up the top of the CSS file and makes it difficult to find the start
