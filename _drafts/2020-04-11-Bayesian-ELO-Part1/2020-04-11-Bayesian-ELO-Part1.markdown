@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Bayesian Elo - Part 1/3"
-date:   2020-04-11 09:22:47 +1000
+date:   2020-04-11
 mathjax: true
 categories: Bayes Sports
 ---
