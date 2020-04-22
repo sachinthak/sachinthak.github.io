@@ -7,7 +7,7 @@ categories: Bayes Sports Stan
 ---
 
 In the first post I presented an introduction to the Elo rating system.
-In this second post of 3 part series I describe the specifics of the model used to infer the Elo parameters $K$ and $\tau$ and once $K$ and $\tau$ are estimated, how Monte Carlo simulations could be used to infer the Elo ratings of the teams that reflect parameter uncertainty. In other words, instead of a single point estimate for a team's Elo rating, we can get a more informative view by looking at plausible values of Elo expressed as a probability distribution. This is a precursor for the final piece of the puzzle, covered in the 3rd post, where I estimate the win probabilities of future matures, including the Premiership.
+In this second post of 3 part series I describe the specifics of the model used to infer the Elo parameters $K$ and $\tau$ and once $K$ and $\tau$ are estimated, how Markov Chain Monte Carlo simulations could be used to infer the Elo ratings of the teams that reflect parameter uncertainty. In other words, instead of a single point estimate for a team's Elo rating, we can get a more informative view by looking at plausible values of Elo expressed as a probability distribution. This is a precursor for the final piece of the puzzle, covered in the 3rd post, where I estimate the win probabilities of future matures, including the Premiership.
 The source code for this work can be found [here](https://github.com/sachinthak/afl_prediction).
 {:.text-justify}
 
@@ -100,10 +100,40 @@ Posterior point estimates for the Elo parameters are shown in the following tabl
 | $\tau$      | 439.04      |   89.06 |
 {:.text-justify}
 
+##### How sensitive is the posterior to different choices of prior specifications?
+
+
+
+case 1: $K$       | case 1: $\tau$           
+:-------------:|:-------------:
+![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_1_k.png)|![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_1_tau.png)
+{:.table.no-border}
+
+
+case 2: $K$       | case 2: $\tau$           
+:-------------:|:-------------:
+![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_2_k.png)|![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_2_tau.png)
+{:.table.no-border}
+
+case 3: $K$       | case 3: $\tau$           
+:-------------:|:-------------:
+![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_3_k.png)|![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_3_tau.png)
+{:.table.no-border}
+
 
 ### Team Elo ratings as the season progressed
 
 Note that we assigned a $\mathcal{N}(1500,100^2)$ prior for each team's Elo rating at the beginning of the season (i.e round = 0).
-The prior specification for the Elo ratings for round 0,  together with  the Elo update formula, implictly induce prior distributions for Elo ratings for all the rounds. The MCMC samples from the fitted model can be used to approximate the posterior distributions of Elo ratings, after each round, for any team. Below, I plot this for two teams, St Kilda and West Coast Eagles, the latter team turned out to be the eventual winners of the tournament, while the former did not have a good season. In the below graphs, density plots for each round are stacked vertically. The dashed vertical line indicate the base Elo rating set by the prior 1500.
+The prior specification for the Elo ratings for round 0,  together with  the Elo update formula, implictly induce prior distributions for Elo ratings for all the rounds. The MCMC samples from the fitted model can be used to approximate the posterior distributions of Elo ratings, after each round, for any team. Below, I plot this for two teams, St Kilda and West Coast Eagles, the latter team turned out to be the eventual winners of the tournament, while the former did not have a good season. In the below graphs, density plots for each round are stacked vertically. The dashed vertical line indicate the base Elo rating of 1500 (mean of the prior assigned for initial Elo ratings).
+{:.text-justify}
 
 ![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/st_kilda_elo.png)
+![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/west_coast_elo.png)
+
+Contrast the movement of Elo ratings for the two teams. St Kilda started off the season with an average Elo rating of 1434 and drifted to 1302 by the end of round 23. On the other hand West Coast Eagles started the season with an average rating of 1567 and increased it to 1638 by round 23.
+{:.text-justify}
+
+Lets take a step back to reflect on what these posterior distributions mean. Under Bayesian inference, posterior distribution is the answer to the question, *"For a  given model(prior and likelihood) specification, which set of parameters are more plausible to result in the observed data?"*. The posterior distribution gives the correct answer to *the question* that we ask. Embedded in the question is our assumption of how the world behaves. This concept is nicely explained in the book ["Statistical Rethinking"](https://xcelab.net/rm/statistical-rethinking/) by Richard McElreath. He nicely explains the difference between the modelling assumptions and the reality by introducing the concept of "small world vs large world". Small world represents the assumptions and the self contained logic that we assume that the world operates by. Large world represents the true nature. Bayesian inference gives the optimum answer to the questions posed under small world assumptions, but it is not a guarantee that the answers are correct under large world assumptions. It is up to the modeller to reason out and come up with proper questions (in the form of likelihood and prior) to be answered by Bayesian inference. To relate this to our current exercise, I should be questioning the validity of the model, for example, "is it reasonable to assume that the probability of a team A winning against team B is related to a logistic function of the difference of current Elo ratings?", etc.  In this series of posts, I am not attempting to validate the small world assumptions, but instead focus on finding the best possible answers to the questions posed under small world assumptions.
+{:.text-justify}
+
+In the 3rd and final part of the series, I will go into the details of how we can simulate the remainder of the tournaments and use these simulation results to approximate the probability of each team making it to the finals series or winning the Premiership, etc.
