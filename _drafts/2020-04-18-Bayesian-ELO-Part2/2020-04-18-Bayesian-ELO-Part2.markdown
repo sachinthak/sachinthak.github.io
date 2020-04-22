@@ -102,7 +102,36 @@ Posterior point estimates for the Elo parameters are shown in the following tabl
 
 ##### How sensitive is the posterior to different choices of prior specifications?
 
+Prior distribution and likelihood are modelling assumptions. It is good practice to check how sensitive the model outputs are to these assumptions. This is known as sensitivity analysis. Here, I will alter the prior distribution on $K$ and $\tau$ and compare the effect of those on the posterior distributions.  Sensitivity to the prior is not necessarily a bad thing, after all prior distribution gives an opportunity to feed domain knowledge to the model. But we need to be extra skeptical of models that are highly sensitive to small changes in the prior, or at-least be aware of it.
+{:.text-justify}
 
+Recall, that our original prior assignments for $K$ and $\tau$ are $$\mathcal{N}(100,50^2)$$ and $$\mathcal{N}(400,100^2)$$ respectively. I consider 3 alternative specifications.
+- **Case 1**: lognormal distribution with the same mean and standard deviation parameter as the original prior.
+
+$$\begin{aligned}
+K &\sim \mathcal{LN}(100,50),\\
+\tau &\sim \mathcal{LN}(400,100).\\
+\end{aligned}
+$$
+
+- **Case 2**: [student-t](https://mc-stan.org/docs/2_22/functions-reference/student-t-distribution.html) distribution with degree of freedom set to 3 and  mean matching the original prior specification.
+
+$$\begin{aligned}
+K &\sim  t_3(100,50),\\
+\tau &\sim t_3(400,100).\\
+\end{aligned}
+$$
+
+- **Case 3**: student-t distribution with degree of freedom set to 3 and  mean parameters shifted from that of the original but scaling parameter set to have heavier tails.
+
+$$\begin{aligned}
+K &\sim  t_3(80,100),\\
+\tau &\sim t_3(200,200).\\
+\end{aligned}
+$$
+
+Below I provide plots comparing the  original and new posterior induced by the alternative prior for all 3 cases. I have overlayed the prior distributions as dashed curves and the vertical lines mark the posterior means.
+{:.text-justify}
 
 case 1: $K$       | case 1: $\tau$           
 :-------------:|:-------------:
@@ -120,6 +149,9 @@ case 3: $K$       | case 3: $\tau$
 ![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_3_k.png)|![GitHub Logo]({{ site.baseurl }}/assets/2020-04-18-Bayesian-ELO-Part2/case_3_tau.png)
 {:.table.no-border}
 
+
+In all the cases the posterior means remain close to each other. When comparing the distribution shapes, case 2 results in the least shift from the original posterior. Most distinct drift occurs in case 3 where we have changed the mean parameters and made the tails heavier. This is something to be bit weary about. Also of interest is the fact that even under case 3, where the modified prior for $K$ have significant probability mass to the left of 0, the posterior does not a probability mass over negative $K$ values. This is to say, that negative $K$ values are strongly inconsistant with the observed data.
+{:.text-justify}
 
 ### Team Elo ratings as the season progressed
 
