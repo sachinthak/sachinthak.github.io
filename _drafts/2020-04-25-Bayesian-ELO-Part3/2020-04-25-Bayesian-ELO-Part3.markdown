@@ -41,30 +41,19 @@ $$
 
 where the $\mu_{A,B,n}^{(m)}$ is calculated using $\tau^{(m)}, r_{A,n}^{(m)}$ and $r_{B,n}^{(m)}$.
 
-Probability of team $A$ winning against $B$ in round $n+1$ is given by
+Our belief of probability of team $A$ winning against $B$ in round $n+1$ can be approximated as
+$\frac{1}{M}\sum_{m=1}^M  W_{A,B,n+1}^{(m)}$.
 
-$$\begin{aligned}
- \text{Pr}\left(W_{A,B,n+1} = 1\right) &\approx \frac{1}{M} \sum_{m=1}^M \mu_{A,B,n}^{(m)},\\
-                            &\approx \frac{1}{M}\sum_{m=1}^M  W_{A,B,n+1}^{(m)}.
-\end{aligned}$$
+
 
 ### Looking under the hood
 
-Why is the right hand side of the above equation an approximation to team $A$'s winning probability and what does it got to do with Bayes? Let me explain.  
+Why is $\frac{1}{M}\sum_{m=1}^M  W_{A,B,n+1}^{(m)}$ an approximation to team $A$'s winning probability and what does it got to do with Bayes? Let me explain.  
 {:.text-justify}
 
-Formally, what we are after is the posterior predictive distribution for the outcome of the next match. That is, what probability do we assign to the outcome of the **future** match, **after observing** the actual outcomes of rounds 1 to $n$, . That is
+Formally, what we are after is the posterior predictive distribution for the outcome of the next match. In other words, what probability do we assign to the outcome of a **future** match, **after observing** the actual outcomes of rounds 1 to $n$. Let $\mathbf{W}_{A,B,n}$ denote a vector of  match outcomes of all the past matches up to and including round $n$. Then the posterior predictive distribution can be approximated as follows.
 {:.text-justify}
 
-$$
-\text{Pr}\left(W_{A,B,n+1}=1|\mathbf{W}_{A,B,n}\right)
-$$
-
-where $\mathbf{W}_{A,B,n}$ is a vector of  match outcomes of all the past matches up to and including round $n$.
-
-As a step towards evaluating the above quantity, I introduce the Elo parameters and the ratings and then marginalise them out. This is possible
-because of [Chapman-Kolmogorov](https://en.wikipedia.org/wiki/Chapman–Kolmogorov_equation) equation.
-{:.text-justify}
 
 $$\begin{aligned}
   &\text{Pr}\left(W_{A,B,n+1}=1|\mathbf{W}_{A,B,n}\right)  \\
@@ -76,5 +65,26 @@ $$\begin{aligned}
 \end{aligned}
 $$
 
+First equality follows from [Chapman-Kolmogorov](https://en.wikipedia.org/wiki/Chapman–Kolmogorov_equation) equation. Second equality is due to the conditional probability formula. Note the term $p(\tau,r_{A,n},r_{B,n}\|\mathbf{W}_{A,B,n})$ is the joint posterior distribution of (some of) the parameters from the Elo model. Third line is by using a Monte Carlo approximation to the integral using the MCMC samples which approximate the draws from the posterior distribution.
+{:.text-justify}
 
-In the 3rd and final part of the series, I will go into the details of how we can simulate the remainder of the tournaments and use these simulation results to approximate the probability of each team making it to the finals series or winning the Premiership, etc.
+## Simulating matches beyond the immediate round
+
+In order to workout the probabilities of winning the premiership, we need to simulate future matches not just for the next round but until a team wins the premiership. If we can simulate these virtual tournaments many times then the proportion of times a given team ends up winning the premiership is an approximation for that team's probability of winning the tournament. The power and flexibility of Monte Carlo simulations is that, the same method can be used to find probabilities of other events, such as a team making the top 8, semi finals or preliminary finals, etc.
+{:.text-justify}
+
+Our parameter space for which MCMC samples is generated is multidimensional. That is, after $n$ (physical) rounds of matches, the parameters in our model for which the inference is performed are the Elo parameters $K$ and $\tau$ and Elo rating for each team after each round up to and including round $n$. It should be noted that a single sample from the MCMC chain gives a realisation for each of these parameters. For each MCMC sample, I create a trajectory of outcomes for future matches. The important thing to note is that outcomes of the simulated matches are used to update the Elo ratings for future rounds according to the Elo update formula, which I discussed in part 1 and 2.
+{:.text-justify}
+
+There is a subtle point that I wish to emphasise here. Though, I update the future Elo ratings based on the simulated outcomes, I implicitly assume that the future Elo rating changes are purely based on current Elo ratings and the stochastic nature of the dynamics induced by the Elo framework. In other words, factors such as future changes in team morale etc are not captured, because the Elo rating updates for the future rounds are based on simulated match outcomes instead of  actual match outcomes.  
+{:.text-justify}
+
+The MCMC for parameter estimation and future match simulation were both handled via [Stan](https://mc-stan.org). Though, I had some limited experience with Stan before, this is the first time I used it extensively. Beyond round 23, the teams facing head to head  in a match are not fixed and depend on the outcome of the previous matches. Because Stan is a probabilisitic programming language and not a general purpose language like Python, there  was a bit of a learning curve involved to figure out how to implement the ["AFL final eight system"](https://en.wikipedia.org/wiki/AFL_final_eight_system) purely in Stan,
+{:.text-justify}
+
+Here are the estimated probabilities for tournament outcome as evaluated at the end of round 22.
+
+
+| Header One     | Header Two     |
+| :------------- | :------------- |
+| Item One       | Item Two       |
