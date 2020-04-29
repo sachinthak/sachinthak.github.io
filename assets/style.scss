@@ -1156,6 +1156,13 @@ Modules - reusable parts of our design
     border: none;
 }
 
+.table.font_9 td{
+    font-size: 9pt;
+}
+
+.table.font_9 th{
+    font-size: 9pt;
+}
 
 // Settled on moving the import of syntax highlighting to the bottom of the CSS
 // ... Otherwise it really bloats up the top of the CSS file and makes it difficult to find the start

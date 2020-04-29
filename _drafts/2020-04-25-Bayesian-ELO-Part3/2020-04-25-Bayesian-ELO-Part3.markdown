@@ -68,6 +68,34 @@ $$
 First equality follows from [Chapman-Kolmogorov](https://en.wikipedia.org/wiki/Chapman–Kolmogorov_equation) equation. Second equality is due to the conditional probability formula. Note the term $p(\tau,r_{A,n},r_{B,n}\|\mathbf{W}_{A,B,n})$ is the joint posterior distribution of (some of) the parameters from the Elo model. Third line is by using a Monte Carlo approximation to the integral using the MCMC samples which approximate the draws from the posterior distribution.
 {:.text-justify}
 
+### Is the model output well calibrated?
+
+One of the most desirable properties of a model is to have well calibrated probabilities. If I have to pick one metric to evaluate a model, it would definitely be the calibration. What I mean by well calibrated probabilities is that, for example, if the model predicts that a team wins with 80% probability, then of all the times such predictions are made, the team should win approximately 80% of the time. This should hold not just for 80%, but for all probabilities.
+{:.text-justify}
+
+To assess the calibration, I considered all the matches from round 5 to 22. This consists of 153 matches. Each round's predictions were made using the the model trained with data up to and including the previous round. I binned the winning probabilities of the first team into bind of width 10% (i.e. 0 to .1, .1 to .2, ... ,.9 to 1). For each bin, I calculated the average prediction probability and the fraction of times the team 1 won actually won. These points were then plotted. A "perfect" model  would have all the points **lying** on the  $y=x$ line.  For comparison purposes, I trained the model with all the data including round 22, and retrospectively predicted the previous rounds. Below graph shows the output of the calibration assessment.
+{:.text-justify}
+
+![]({{ site.baseurl }}/assets/2020-04-25-Bayesian-ELO-Part3/calibration_check.png)
+
+
+ I'm pleased with how the model faired against the calibration check.
+
+### Model evaluation against some standard  metrics
+
+Below, I have tabulated the some of the standard model evaluation metrics based on the match outcomes  for rounds 5 through to 22. Similar to the calibration check, I've calculated the metrics in both the foresight (predictive) and hindsight (retrospective) directions.
+
+ Metric | Predictive      | Retrospective
+ :------------- | :-------------
+ Accuracy | 0.65       |  0.67
+ AUC | 0.72      |  0.75
+ Precision | 0.69     |  0.71
+ Recall | 0.65     |  0.65
+{:.table.font_9}
+
+For accuracy, precision and recall calculations, the model predictions were converted to binary form using a threshold of 0.5. A positive thing to note is that metrics for predictive direction are similar to those of retrospective direction. Comparing predictive and retrospective directions is analogous to comparing testing and training performance in machine learning.
+{:.text-justify}
+
 ## Simulating matches beyond the immediate round
 
 In order to workout the probabilities of winning the premiership, we need to simulate future matches not just for the next round but until a team wins the premiership. If we can simulate these virtual tournaments many times then the proportion of times a given team ends up winning the premiership is an approximation for that team's probability of winning the tournament. The power and flexibility of Monte Carlo simulations is that, the same method can be used to find probabilities of other events, such as a team making the top 8, semi finals or preliminary finals, etc.
@@ -82,9 +110,74 @@ There is a subtle point that I wish to emphasise here. Though, I update the futu
 The MCMC for parameter estimation and future match simulation were both handled via [Stan](https://mc-stan.org). Though, I had some limited experience with Stan before, this is the first time I used it extensively. Beyond round 23, the teams facing head to head  in a match are not fixed and depend on the outcome of the previous matches. Because Stan is a probabilisitic programming language and not a general purpose language like Python, there  was a bit of a learning curve involved to figure out how to implement the ["AFL final eight system"](https://en.wikipedia.org/wiki/AFL_final_eight_system) purely in Stan,
 {:.text-justify}
 
-Here are the estimated probabilities for tournament outcome as evaluated at the end of round 22.
+### Probabilities of each team reaching a milestone in the finals series
 
+The milestones considered are
+- team making it to the final 8
+- team making it to the the semi final
+- team making it to the the preliminary final
+- team making it to the grand final
+- team winning the premiership.
 
-| Header One     | Header Two     |
-| :------------- | :------------- |
-| Item One       | Item Two       |
+Below I present the probabilities evaluated at  2 different times (after round 15 and 22) as the season progressed. Rows are sorted in the descending order of premiership winning probability and the probabilities are rounded to the to nearest two decimal points.
+{:.text-justify}
+
+#### Final series probabilities evaluated after round 15
+
+|                 Team | Final 8| Semi final 4| Preliminary final 4| Grand final 2| Premiership|
+|:--------------------:|:-----:|:----------:|:------------:|:-----:|:----------:|
+|               Richmond|   1.00|        0.42|          0.79|   0.43|        0.24|
+|                 Sydney|   0.94|        0.47|          0.59|   0.31|        0.16|
+|          Port Adelaide|   0.96|        0.48|          0.58|   0.31|        0.15|
+|            Collingwood|   0.93|        0.47|          0.53|   0.27|        0.14|
+|             West Coast|   0.92|        0.48|          0.48|   0.22|        0.10|
+|                    GWS|   0.56|        0.29|          0.19|   0.09|        0.04|
+|                Geelong|   0.58|        0.29|          0.19|   0.08|        0.04|
+|               Hawthorn|   0.60|        0.30|          0.17|   0.08|        0.04|
+|        North Melbourne|   0.57|        0.29|          0.17|   0.08|        0.03|
+|              Melbourne|   0.55|        0.27|          0.17|   0.07|        0.03|
+|               Essendon|   0.19|        0.11|          0.07|   0.04|        0.02|
+|               Adelaide|   0.17|        0.09|          0.05|   0.02|        0.01|
+|              Fremantle|   0.03|        0.02|          0.01|   0.00|        0.00|
+|       Western Bulldogs|   0.00|        0.00|          0.00|   0.00|        0.00|
+|               St Kilda|   0.00|        0.00|          0.00|   0.00|        0.00|
+|         Brisbane Lions|   0.00|        0.00|          0.00|   0.00|        0.00|
+|                Carlton|   0.00|        0.00|          0.00|   0.00|        0.00|
+|             Gold Coast|   0.00|        0.00|          0.00|   0.00|        0.00|
+{:.table.font_9}
+
+#### Final series probabilities evaluated after round 22
+
+|                 Team | Final 8| Semi final 4| Preliminary final 4| Grand final 2| Premiership|
+|:--------------------:|:-----:|:----------:|:------------:|:-----:|:----------:|
+|              Richmond|   1.00|        0.37|          0.86|   0.55|        0.34|
+|            West Coast|   1.00|        0.51|          0.73|   0.33|        0.15|
+|                Sydney|   1.00|        0.57|          0.54|   0.27|        0.13|
+|           Collingwood|   1.00|        0.51|          0.62|   0.27|        0.12|
+|              Hawthorn|   1.00|        0.57|          0.48|   0.23|        0.11|
+|                   GWS|   1.00|        0.54|          0.32|   0.15|        0.07|
+|             Melbourne|   1.00|        0.50|          0.27|   0.12|        0.05|
+|               Geelong|   0.93|        0.40|          0.17|   0.08|        0.03|
+|         Port Adelaide|   0.07|        0.03|          0.01|   0.01|        0.00|
+|              Adelaide|   0.00|        0.00|          0.00|   0.00|        0.00|
+|        Brisbane Lions|   0.00|        0.00|          0.00|   0.00|        0.00|
+|               Carlton|   0.00|        0.00|          0.00|   0.00|        0.00|
+|              Essendon|   0.00|        0.00|          0.00|   0.00|        0.00|
+|             Fremantle|   0.00|        0.00|          0.00|   0.00|        0.00|
+|            Gold Coast|   0.00|        0.00|          0.00|   0.00|        0.00|
+|       North Melbourne|   0.00|        0.00|          0.00|   0.00|        0.00|
+|              St Kilda|   0.00|        0.00|          0.00|   0.00|        0.00|
+|      Western Bulldogs|   0.00|        0.00|          0.00|   0.00|        0.00|
+{:.table.font_9}
+
+Note that except for the last column (premiership), other columns do not need to add up to 1 as events are not necessarily mutually exclusive (eg. team A making it to the final 8 does not mean team B cannot).  After round 22, 7 positions out of 8 are already occupied and a significant chance that Geelong would occupy the last spot. Compare that with the probabilities after round 15, where only 1 position (Richmond) is guaranteed. These results were obtained by running many (40,000) virtual tournaments. The main point I like to emphasise here is that Bayesian framework along with simulations, gives a very flexible and powerful platform for modellers.
+{:.text-justify}
+
+## What's next?
+
+There are many enhancement opportunities for the current implementation of the Bayesian model. Adjusting the Elo update formula to account for home field advantage is one of them. Home field advantage is the apparent advantage a team enjoys when a match is played at its home ground. For some discussion on what is driving the home field advantage please refer to the book ["Scorecasting"](https://www.amazon.com/Scorecasting-Hidden-Influences-Behind-Sports-ebook/dp/B004C43GC4/ref=sr_1_1?dchild=1&keywords=scorecasting&qid=1588165967&sr=8-1). The Elo update formula can be adjusted so that when a team records a win in it's home ground, the increment in its Elo rating is lesser than the same team recording a win on ground outside it's home ground.
+{:.text-justify}
+
+Margin of victory adjustments, details of which I discussed in the 1st part of the series is not used in the current implementation. This adjustment recognises and treats a win by just 1 point different to when the score difference is significant. The challenge of using that adjustment is with simulating the future matches. This is because, with margin of victory adjustment,  Elo rating update would require team scores instead of just win/lose outcomes and I don't have the team scores for future matches, unless I explicitly model the scores. Predicting team scores is more challenging than predicting the binary outcome of a match.
+
+Using data over multiple seasons, a multilevel model can be fit to capture the year to year fluctuations in the Elo parameters. This may help with adding some additional regularisation for the model fit.
