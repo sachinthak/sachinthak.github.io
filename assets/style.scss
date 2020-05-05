@@ -90,6 +90,8 @@ p {
 
 table {
 	padding: 0;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 table tr {
@@ -148,7 +150,8 @@ table tr td :last-child {
   border-radius: 4px;
   box-sizing: border-box;
   font-size: 18px;
-  background-color: #fff3ff;
+  background-color: #e8e9eb;
+  /*background-color: fff3ff;*/
 }
 
 .share-box {
@@ -1156,12 +1159,22 @@ Modules - reusable parts of our design
     border: none;
 }
 
-.table.font_9 td{
-    font-size: 9pt;
+.table.font_10 td{
+    font-size: 10pt;
 }
 
-.table.font_9 th{
-    font-size: 9pt;
+.table.font_10 th{
+    font-size: 10pt;
+}
+
+.table2-center table{
+  width: 100px;
+  margin: auto;
+}
+
+.table2-center div{
+  width: 100px;
+  margin: auto;
 }
 
 // Settled on moving the import of syntax highlighting to the bottom of the CSS
